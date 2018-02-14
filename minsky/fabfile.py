@@ -1,5 +1,5 @@
 from __future__ import with_statement
-from fabric.api import task, run, sudo, env
+from fabric.api import task, run, sudo, env, settings
 from fabric.contrib.console import confirm
 import getpass
 import csv
@@ -19,6 +19,8 @@ def read_credentials():
     else:
         env.user = raw_input("GT username: ")
         env.password = getpass.getpass("GT Password for Minsky: ")
+        with open('credentials.yaml', 'w') as c:
+            yaml.dump({'username': env.user, 'password': env.password}, c)
     
     env.sudo_password = env.password
     env.hosts = ["minsky{0}.cc.gatech.edu".format(x) for x in range(1, 8)]
@@ -54,4 +56,5 @@ def run_command(command):
     Run arbitrary commands on the remote machine
     E.g. `fab run_command:command="apt-get install emacs"`
     """
-    sudo(command)
+    with settings(warn_only=True):
+        sudo(command)
