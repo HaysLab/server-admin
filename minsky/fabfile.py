@@ -8,8 +8,11 @@ import yaml
 
 def read_credentials():
     """
+    Function to read in credentials from the user.
     """
+    # check if the credentials exist in a yaml file
     if osp.exists('credentials.yaml'):
+        # load up the credentials
         with open('credentials.yaml') as c:
             creds = yaml.load(c)
 
@@ -17,8 +20,10 @@ def read_credentials():
         env.password = creds['password']
 
     else:
+        # credentials not saved, so we get them from the user
         env.user = raw_input("GT username: ")
         env.password = getpass.getpass("GT Password for Minsky: ")
+        # save the credentials for future use
         with open('credentials.yaml', 'w') as c:
             yaml.dump({'username': env.user, 'password': env.password}, c)
     
@@ -29,11 +34,14 @@ read_credentials()
 
 def list_dir():
     """
+    List the directories in the user's home folder.
+    This function is intended to be used as a lightweight test for your infrastructure.
     """
     sudo("ls -al")
 
 def add_docker_users(csv_file=None):
     """
+    Add users in the CSV file to the docker group on the server(s).
     """
     if not csv_file:
         print("Need CSV file with column 'User ID' for GT usernames")
