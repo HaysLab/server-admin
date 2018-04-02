@@ -5,6 +5,7 @@ import getpass
 import csv
 import os.path as osp
 import yaml
+import csv
 
 def read_credentials():
     """
@@ -58,6 +59,27 @@ def add_docker_user(username="$USER"):
     Once this is done, `username` can access docker without sudo privileges.
     """
     sudo("usermod -aG docker {0}".format(username))
+
+def get_disk_usage(threshold='1G'):
+    """
+    Get the disk usage from the server. This is so that we can keep track of how much data each account is using and request them to clear data in case the server is running short of space.
+    `threshold` is the limit above which we wish to get usage stats.
+    """
+    # Get per user disk usage, sorted by usage
+    disk_stats = sudo("du -sh --threshold={0} /home/* | sort -n".format(threshold), quiet=True)
+
+    # Get the total disk usage
+    overall = run("df -h /home/", quiet=True)
+    _, disk = overall.split("\n")
+    disk = [x.strip() for x in disk.split(" ") if x]
+
+    host = env.host.split('.')[0]
+    with open("{0}_disk_usage.tsv".format(host), 'w+') as f:
+        f.write(disk_stats)
+        f.write("\n{0}\t{1}".format(disk[2], 'total'))
+        f.write("\n{0}\t{1}".format(disk[3], 'free'))
+
+    print("Saved file for host: {0}".format(host))
 
 def run_command(command):
     """
