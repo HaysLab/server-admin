@@ -101,4 +101,4 @@ ENV/
 .mypy_cache/
 
 **/credentials.yaml
-**/*.csv
+**/*.[ct]sv
